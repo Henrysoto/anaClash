@@ -18,8 +18,3 @@ class Config
     const CMD_ARGS = ['-a', '-s'];
     const CMD_EXEC = ['-u', '-m'];
 }
-
-/*
-90.43.196.101
-37.169.68.100
-*/
