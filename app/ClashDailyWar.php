@@ -39,7 +39,7 @@ class ClashDailyWar
                 if ($this->createWarLog($war, $clantag)):
                     printf("Clanwar from %s added to database!".PHP_EOL, $this->formatClashDate($war->createdDate));
                 else:
-                    print("something went wrong".PHP_EOL);
+                    throw new Exception("[ClashDailyWar] -> could not add warlog (createWarLog() issue?)");
                 endif;
             else:
                 printf("Clanwar from %s already exist".PHP_EOL, $this->formatClashDate($war->createdDate));
@@ -95,9 +95,9 @@ class ClashDailyWar
             if ($this->pdo->lastInsertId())
                 return true;
             else
-                return false;
+                throw new Exception("[ClashDailyWar] -> could not create warlog");
         else:
-            return false;
+            throw new Exception("[ClashDailyWar] -> warlog data is empty");
         endif;
     }
 }

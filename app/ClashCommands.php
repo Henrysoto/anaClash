@@ -42,7 +42,7 @@ class ClashCommands
                 switch ($cmd):
                     case '-u':
                     {
-                        $clash = (new ClashFinder($this->pdo))->getClanSize();
+                        $clash = (new ClashFinder($this->pdo))->getClanMembers();
                         // $clash = (new ClashFinder($this->pdo))->addClanMembers((new ClashFinder($this->pdo))->getClanMembersApi());
                         // $clash = (new ClashDailyWar($this->pdo))->updateWarLog();
                         // $clash = new ClashPlayer($this->pdo, Config::HENRY_TAG);

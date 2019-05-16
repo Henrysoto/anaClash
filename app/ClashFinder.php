@@ -46,7 +46,7 @@ class ClashFinder
             if (stristr($user, "#"))
                 return $this->createUser($user);
             else
-                return "need tag to create user";
+                throw new Exception("[ClashFinder] -> need tag to create user");
         endif;
 
         $data = [];
@@ -54,18 +54,6 @@ class ClashFinder
             $data[] = $row; 
         
         return $data;
-    }
-
-    public function updateClanMembers(string $clantag = Config::CLAN_TAG)
-    {
-        $netData = json_decode($this->getClanMembersApi(), true); // data from clash api
-        $members = array();
-        foreach ($netData['items'] as $member)
-            array_push($members, $member['name']);
-        $sqlData = $this->getClanMembers();
-        $newMembers = array_diff($members, $sqlData);
-        var_dump($newMembers);
-        
     }
 
     public function createUser(string $user)
@@ -107,12 +95,14 @@ class ClashFinder
                 ":clash_clan_id"        => $data->clan->tag
             ]);
 
-            if ($this->pdo->lastInsertId())
+            if ($this->pdo->lastInsertId()):
                 return true;
-            else
+            else:
+                throw new Exception("[ClashFinder] -> failed to insert new user");
                 return false;
+            endif;
         else:
-            return false;
+            throw new Exception("[ClashFinder] -> player data variable is empty");
         endif;
         //return json_decode($data);
     }
@@ -153,9 +143,9 @@ class ClashFinder
             if ($this->pdo->lastInsertId())
                 return true;
             else
-                return false;
+            throw new Exception("[ClashFinder] -> failed to insert new clan");
         else:
-            return false;
+            throw new Exception("[ClashFinder] -> clan data variable is empty");
         endif;
 
     }
@@ -182,7 +172,7 @@ class ClashFinder
                     array_push($newMembers, $member->name);
                     printf("%s added to database!".PHP_EOL, $member->name);
                 else:
-                    print("something went wrong".PHP_EOL);
+                    throw new Exception("[ClashFinder] -> could not add clan members (createUser() issue?)");
                 endif;
             else:
                 printf("User: %s already exist".PHP_EOL, $member->name);
@@ -198,7 +188,7 @@ class ClashFinder
         $stmt = $this->pdo->query("SELECT clash_clan_members FROM clan_info WHERE clash_clan_id = \"{$clantag}\"");
         
         if (!$stmt)
-            return false;
+            throw new Exception("[ClashFinder] -> getClanMembers() query is invalid");
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         array_push($data, $row['clash_clan_members']);
@@ -211,7 +201,7 @@ class ClashFinder
         $stmt = $this->pdo->query("SELECT clash_clan_size FROM clan_info WHERE clash_clan_id = \"{$clantag}\"");
         
         if (!$stmt)
-            return "prout";
+            throw new Exception("[ClashFinder] -> getClanSize() query is invalid");
         
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         array_push($data, $row['clash_clan_size']);
@@ -223,7 +213,7 @@ class ClashFinder
         $stmt = $this->pdo->query("SELECT * FROM clash_player WHERE clash_id = \"{$playertag}\"");
         
         if (!$stmt)
-            return false;
+            throw new Exception("[ClashFinder] -> getMemberInfo() query is invalid");
         
         $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         return $data;
