@@ -195,7 +195,7 @@ class ClashFinder
     public function getClanMembers(string $clantag = Config::CLAN_TAG)
     {
         $data = [];
-        $stmt = $this->pdo->query("SELECT clash_clan_members FROM clan_info WHERE clash_clan_tag = \"{$clantag}\"");
+        $stmt = $this->pdo->query("SELECT clash_clan_members FROM clan_info WHERE clash_clan_id = \"{$clantag}\"");
         
         if (!$stmt)
             return false;
@@ -208,10 +208,10 @@ class ClashFinder
     public function getClanSize(string $clantag = Config::CLAN_TAG)
     {
         $data = [];
-        $stmt = $this->pdo->query("SELECT clash_clan_size FROM clan_info WHERE clash_clan_tag = \"{$clantag}\"");
+        $stmt = $this->pdo->query("SELECT clash_clan_size FROM clan_info WHERE clash_clan_id = \"{$clantag}\"");
         
         if (!$stmt)
-            return false;
+            return "prout";
         
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         array_push($data, $row['clash_clan_size']);

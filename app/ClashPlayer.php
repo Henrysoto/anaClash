@@ -60,4 +60,34 @@ class ClashPlayer
         $newData = json_encode($newData);
         return $newData;
     }
+
+    public function pData(string $type)
+    {
+        switch (strtolower($type)):
+            case "name":
+                return $this->name;
+                break;
+            case "tag":
+                return $this->tag;
+                break;
+            case "exp":
+                return $this->exp;
+                break;
+            case "trophies":
+                return $this->trophies;
+                break;
+            case "wins":
+                return $this->wins;
+                break;
+            case "losses":
+                return $this->losses;
+                break;
+            case "battlecount":
+                return $this->battleCount;
+                break;
+            case "clan":
+                return $this->clanTag;
+                break;
+        endswitch;
+    }
 }
