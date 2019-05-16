@@ -17,10 +17,17 @@ class ClashClanManager
         
         if (!is_null($clan) && !empty($clan)):
             if (!is_object($clan)):
-                $clanInfo = (new ClashFinder($this->pdo))->getMemberInfo($clan);
+                $clanInfo = (new ClashFinder($this->pdo))->getClanInfo($clan);
                 $clanInfo = $this->formatClanData($clanInfo);
                 if (!$clanInfo || empty($clanInfo)):
                     $clanInfo = ClashFinder::handler(str_replace("@@", urlencode($clan), Config::API_CLAN));
+                    $clanInfo = json_decode($clanInfo);
+                    $clanMembers = null;
+
+                    foreach($clanInfo->memberList as $member)
+                        $clanMembers .= $member->tag.',';
+                    
+                    $clanInfo->memberList = $clanMembers;
                 endif;
             else: 
                 $clanInfo = $clan;
@@ -31,9 +38,9 @@ class ClashClanManager
             $clanInfo = json_decode($clanInfo);
             $this->tag       = $clanInfo->tag;
             $this->name      = $clanInfo->name;
-            $this->size      = $clanInfo->expLevel;
-            $this->score     = $clanInfo->trophies;
-            $this->members   = $clanInfo->wins;
+            $this->size      = $clanInfo->size;
+            $this->score     = $clanInfo->score;
+            $this->members   = $clanInfo->memberList;
         else:
             throw new Exception("[ClashClanManager] -> clan tag invalid");
         endif;
@@ -42,15 +49,11 @@ class ClashClanManager
     public function formatClanData(array $data)
     {
         $newData = array(
-            "name"          => $data[0]["clash_name"],
-            "tag"           => $data[0]["clash_id"],
-            "expLevel"      => $data[0]["clash_exp"],
-            "trophies"      => $data[0]["clash_trophies"],
-            "wins"          => $data[0]["clash_wins"],
-            "losses"        => $data[0]["clash_losses"],
-            "battleCount"   => $data[0]["clash_battleCount"],
-            "clan"          => ["tag" => $data[0]["clash_clan_id"]]
-        );
+            "name"          => $data[0]["clash_clan_name"],
+            "tag"           => $data[0]["clash_clan_id"],
+            "score"         => $data[0]["clash_clan_score"],
+            "size"          => $data[0]["clash_clan_size"],
+            "memberList"    => $data[0]["clash_clan_members"]);
         $newData = json_encode($newData);
         return $newData;
     }
@@ -77,5 +80,16 @@ class ClashClanManager
                 throw new Exception("[ClashClanManager] -> cData() invalid type");
                 break;
         endswitch;
+    }
+
+    public function cmpClanPlayers(string $clantag = Config::CLAN_TAG)
+    {
+        $data = ClashFinder::handler(str_replace("@@", urlencode($clantag), Config::API_CLAN));
+
+        if (!empty($data)):
+            $data = json_decode($data);
+            $data = $data->memberList;
+            $this->members;
+        endif;
     }
 }

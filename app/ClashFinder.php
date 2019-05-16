@@ -110,9 +110,9 @@ class ClashFinder
     public function createClan(string $clantag = Config::CLAN_TAG)
     {
         $data = ClashFinder::handler(str_replace("@@", urlencode($clantag), Config::API_CLAN));
-        
-        if (!empty($data)):
-            $data = json_decode($data);
+        $data = json_decode($data);
+
+        if (!empty($data) && !$data->reason):
             $sql = "
                 INSERT INTO clan_info(
                     clash_clan_id,
@@ -128,9 +128,9 @@ class ClashFinder
                     :clash_clan_members)
             ";
             
-            $members = "";
+            $members = null;
             foreach ($data->memberList as $member)
-                $members = $member->tag.",".$members;
+                $members .= $member->tag.",";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 ":clash_clan_id"        => $data->tag,
@@ -227,6 +227,14 @@ class ClashFinder
             throw new Exception("[ClashFinder] -> getClanInfo() query is invalid");
         
         $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    
+        if(empty($data)):
+            if ($this->createClan($clantag))
+                $data = $this->getClanInfo($clantag);
+            else
+                throw new Exception("[ClashFinder] -> could not create a new clan");
+     
+        endif;
         return $data;
     }
 }
