@@ -38,7 +38,7 @@ class ClashFinder
         
         $query = "
             SELECT * 
-            FROM prout 
+            FROM clash_player 
             WHERE ".($user[0]==='#' ? "clash_id" : "clash_name")." = "."\"".$user."\"";
         $stmt = $this->pdo->query($query);
 
