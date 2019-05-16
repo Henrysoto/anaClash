@@ -218,4 +218,15 @@ class ClashFinder
         $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         return $data;
     }
+
+    public function getClanInfo(string $clantag = Config::CLAN_TAG)
+    {
+        $stmt = $this->pdo->query("SELECT * FROM clan_info WHERE clash_clan_id = \"{$clantag}\"");
+        
+        if (!$stmt)
+            throw new Exception("[ClashFinder] -> getClanInfo() query is invalid");
+        
+        $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $data;
+    }
 }
