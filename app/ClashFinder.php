@@ -218,16 +218,14 @@ class ClashFinder
         return $data;
     }
 
-    public function getMemberInfo(string $playertag)
+    public function getMemberInfo(string $playertag = Config::HENRY_TAG)
     {
-        $data = [];
         $stmt = $this->pdo->query("SELECT * FROM clash_player WHERE clash_id = \"{$playertag}\"");
         
         if (!$stmt)
             return false;
         
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        array_push($data, $row['clash_clan_size']);
+        $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         return $data;
     }
 }
