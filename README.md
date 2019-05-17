@@ -1,3 +1,3 @@
 # anaClash
 
->Clash Royale Clan Manager - 0.1
+>Clash Royale Clan Manager - 0.2
