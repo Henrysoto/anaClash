@@ -156,7 +156,7 @@ class ClashFinder
         return $data; //json
     }
 
-    public function addClanMembers(string $data)
+    public function addClanMembers(string $datas)
     {
         $data = json_decode($data);
         $newMembers = array();

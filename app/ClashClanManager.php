@@ -82,14 +82,34 @@ class ClashClanManager
         endswitch;
     }
 
-    public function cmpClanPlayers(string $clantag = Config::CLAN_TAG)
+    public function updateClanMembers(string $clantag = Config::CLAN_TAG)
     {
+        
         $data = ClashFinder::handler(str_replace("@@", urlencode($clantag), Config::API_CLAN));
+        $data = json_decode($data);
+        $newmembers = array();
+        if (!empty($data) && !$data->reason):
+            $clanInfo = (new ClashFinder($this->pdo))->getClanMembers($clantag);
+            $clanInfo = explode(",", $clanInfo);
+            foreach($data->memberList as $member):
+                if (!in_array($member->tag, $clanInfo))
+                    array_push($newmembers, $member->tag);
+            endforeach;
 
-        if (!empty($data)):
-            $data = json_decode($data);
-            $data = $data->memberList;
-            $this->members;
+            if (!empty($newmembers)):
+                foreach ($newmembers as $tag)
+                    try
+                    {
+                        if ($clanInfo = (new ClashFinder($this->pdo))->userExists($tag))
+                            return true;
+                    }
+                    catch (Exception $e)
+                    {
+                        print($e->getMessage);
+                        continue;
+                    }
+        else:
+            throw new Exception("[ClashClanManager] -> updateClanMembers(): data is invalid");
         endif;
     }
 }
