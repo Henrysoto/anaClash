@@ -97,7 +97,7 @@ class ClashClanManager
             endforeach;
 
             if (!empty($newmembers)):
-                foreach ($newmembers as $tag)
+                foreach ($newmembers as $tag):
                     try
                     {
                         if ($clanInfo = (new ClashFinder($this->pdo))->userExists($tag))
@@ -108,6 +108,8 @@ class ClashClanManager
                         print($e->getMessage);
                         continue;
                     }
+                endforeach;
+            endif;
         else:
             throw new Exception("[ClashClanManager] -> updateClanMembers(): data is invalid");
         endif;

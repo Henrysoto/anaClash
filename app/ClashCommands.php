@@ -49,7 +49,7 @@ class ClashCommands
                         // $clash = (new ClashFinder($this->pdo))->getClanMembers();
                         // $clash = (new ClashFinder($this->pdo))->addClanMembers((new ClashFinder($this->pdo))->getClanMembersApi());
                         // $clash = (new ClashDailyWar($this->pdo))->updateWarLog();
-                        $clash = (new ClashClanManager($this->pdo, "#P9PLUVL"));
+                        $clash = (new ClashClanManager($this->pdo, Config::CLAN_TAG));
                         var_dump($clash);
                     }
                 endswitch;
