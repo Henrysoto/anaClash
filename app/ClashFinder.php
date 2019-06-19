@@ -96,6 +96,7 @@ class ClashFinder
             ]);
 
             if ($this->pdo->lastInsertId()):
+                printf("User %s also known as %s added to database!", $data->name, $data->tag);
                 return true;
             else:
                 throw new Exception("[ClashFinder] -> failed to insert new user");

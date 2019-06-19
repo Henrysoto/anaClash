@@ -41,24 +41,28 @@ class ClashPlayer
             $this->battleCount  = $playerInfo->battleCount;
             $this->clanTag      = $playerInfo->clan->tag;
         else:
-            throw new Exception("Tag joueur invalide");
+            throw new Exception("[ClashPlayer] -> Player tag invalid");
         endif;
     }
 
     public function formatPlayerData(array $data)
     {
-        $newData = array(
-            "name"          => $data[0]["clash_name"],
-            "tag"           => $data[0]["clash_id"],
-            "expLevel"      => $data[0]["clash_exp"],
-            "trophies"      => $data[0]["clash_trophies"],
-            "wins"          => $data[0]["clash_wins"],
-            "losses"        => $data[0]["clash_losses"],
-            "battleCount"   => $data[0]["clash_battleCount"],
-            "clan"          => ["tag" => $data[0]["clash_clan_id"]]
-        );
-        $newData = json_encode($newData);
-        return $newData;
+        if (!empty($data)):
+            $newData = array(
+                "name"          => $data[0]["clash_name"],
+                "tag"           => $data[0]["clash_id"],
+                "expLevel"      => $data[0]["clash_exp"],
+                "trophies"      => $data[0]["clash_trophies"],
+                "wins"          => $data[0]["clash_wins"],
+                "losses"        => $data[0]["clash_losses"],
+                "battleCount"   => $data[0]["clash_battleCount"],
+                "clan"          => ["tag" => $data[0]["clash_clan_id"]]
+            );
+            $newData = json_encode($newData);
+            return $newData;
+        else:
+            throw new Exception("[ClashPlayer] -> player data variable is empty in formatPlayerData() method");
+        endif;
     }
 
     public function pData(string $type)
@@ -89,5 +93,27 @@ class ClashPlayer
                 return $this->clanTag;
                 break;
         endswitch;
+    }
+
+    public function updatePlayer(string $playerTag)
+    {
+        if ($playerTag):
+            if (ClashFinder::userExists($playerTag)):
+                $playerInfo = ClashFinder::handler(str_replace("@@", urlencode($playerTag), Config::API_PLAYER));
+                if (!is_null($playerInfo) && !empty($playerInfo)):        
+                    $playerInfo = json_decode($playerInfo);
+                    $this->tag          = $playerInfo->tag;
+                    $this->name         = $playerInfo->name;
+                    $this->exp          = $playerInfo->expLevel;
+                    $this->trophies     = $playerInfo->trophies;
+                    $this->wins         = $playerInfo->wins;
+                    $this->losses       = $playerInfo->losses;
+                    $this->battleCount  = $playerInfo->battleCount;
+                    $this->clanTag      = $playerInfo->clan->tag;
+                endif;
+            endif;
+        else:
+            throw new Exception("[ClashPlayer] -> Could not update player info, invalid tag"); 
+        endif;
     }
 }
