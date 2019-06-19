@@ -95,22 +95,72 @@ class ClashPlayer
         endswitch;
     }
 
-    public function updatePlayer(string $playerTag)
+    public function updatePlayer(string $playerTag = Config::HENRY_TAG)
     {
-        if ($playerTag):
-            if (ClashFinder::userExists($playerTag)):
-                $playerInfo = ClashFinder::handler(str_replace("@@", urlencode($playerTag), Config::API_PLAYER));
-                if (!is_null($playerInfo) && !empty($playerInfo)):        
-                    $playerInfo = json_decode($playerInfo);
-                    $this->tag          = $playerInfo->tag;
-                    $this->name         = $playerInfo->name;
-                    $this->exp          = $playerInfo->expLevel;
-                    $this->trophies     = $playerInfo->trophies;
-                    $this->wins         = $playerInfo->wins;
-                    $this->losses       = $playerInfo->losses;
-                    $this->battleCount  = $playerInfo->battleCount;
-                    $this->clanTag      = $playerInfo->clan->tag;
+        $finder = new ClashFinder($this->pdo);
+        if ($playerTag[0] === '#'):
+            if ($playerInfo = $finder->getMemberInfo($playerTag)):
+                $newPlayerInfo = $finder->handler(str_replace("@@", urlencode($playerTag), Config::API_PLAYER));
+                if (!is_null($newPlayerInfo) && !empty($newPlayerInfo)):        
+                    $newPlayerInfo = json_decode($newPlayerInfo);
+                    $this->tag          = $newPlayerInfo->tag;
+                    $this->name         = $newPlayerInfo->name;
+                    $this->exp          = $newPlayerInfo->expLevel;
+                    $this->trophies     = $newPlayerInfo->trophies;
+                    $this->wins         = $newPlayerInfo->wins;
+                    $this->losses       = $newPlayerInfo->losses;
+                    $this->battleCount  = $newPlayerInfo->battleCount;
+                    $this->clanTag      = $newPlayerInfo->clan->tag;
+                    
+                    // $clanInfo = ClashFinder::getMemberInfo($this->tag);
+                    $clanInfo = $playerInfo[0]['clash_clan_id'];
+                    if ($clanInfo != $this->clanTag):
+                        try
+                        {
+                            (new ClashClanManager($this->pdo, $this->clanTag))->updateClanMembers($clanInfo);
+                        }
+                        catch (Exception $e)
+                    {
+                        print($e->getMessage);
+                        continue;
+                    }
+                    
+                    $sql = "
+                        UPDATE 
+                            clash_player 
+                        SET 
+                            clash_exp           = :clash_exp,
+                            clash_trophies      = :clash_trophies,
+                            clash_wins          = :clash_wins,
+                            clash_losses        = :clash_losses,
+                            clash_battleCount   = :clash_battleCount,
+                            clash_clan_id       = :clash_clan_id 
+                        WHERE 
+                            clash_id = :clash_id
+                    ";
+
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute([
+                        ":clash_id"             => $this->tag,
+                        ":clash_exp"            => $this->exp,
+                        ":clash_trophies"       => $this->trophies,
+                        ":clash_wins"           => $this->wins,
+                        ":clash_losses"         => $this->losses,
+                        ":clash_battleCount"    => $this->battleCount,
+                        ":clash_clan_id"        => $this->clanTag
+                    ]);
+
+                    if ($stmt):
+                        printf("User %s also known as %s has been updated!", $this->name, $this->tag);
+                        return true;
+                    else:
+                        throw new Exception("[ClashPlayer] -> failed to update player");
+                        return false;
+                    endif;
                 endif;
+            else:
+                $finder->createUser($playerTag);
+                return true;
             endif;
         else:
             throw new Exception("[ClashPlayer] -> Could not update player info, invalid tag"); 

@@ -100,8 +100,7 @@ class ClashClanManager
                 foreach ($newmembers as $tag):
                     try
                     {
-                        if ($clanInfo = (new ClashFinder($this->pdo))->userExists($tag))
-                            return true;
+                        (new ClashFinder($this->pdo))->userExists($tag);    
                     }
                     catch (Exception $e)
                     {

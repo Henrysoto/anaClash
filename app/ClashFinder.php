@@ -141,10 +141,12 @@ class ClashFinder
                 ":clash_clan_members"   => $members
             ]);
 
-            if ($this->pdo->lastInsertId())
+            if ($this->pdo->lastInsertId()):
+                printf("Clan %s has been added to database", $data->name);
                 return true;
-            else
-            throw new Exception("[ClashFinder] -> failed to insert new clan");
+            else:
+                throw new Exception("[ClashFinder] -> failed to insert new clan");
+            endif;
         else:
             throw new Exception("[ClashFinder] -> clan data variable is empty");
         endif;
